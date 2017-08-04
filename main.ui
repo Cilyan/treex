@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.20.0 -->
+<interface>
+  <requires lib="gtk+" version="3.12"/>
+  <object class="GtkEntryCompletion" id="enc_formula"/>
+  <object class="GtkApplicationWindow" id="win_main">
+    <property name="can_focus">False</property>
+    <property name="default_width">600</property>
+    <property name="default_height">600</property>
+    <child>
+      <object class="GtkBox" id="box1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkButtonBox" id="buttonbox1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkFileChooserButton" id="fc_open">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFileChooserButton" id="fc_save">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action">save</property>
+                <property name="do_overwrite_confirmation">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkEntry" id="ent_formula">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="completion">enc_formula</property>
+                <signal name="changed" handler="on_ent_formula_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolbar" id="toolbar1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="toolbar_style">icons</property>
+                <property name="icon_size">2</property>
+                <child>
+                  <object class="GtkToolButton" id="tb_add_root">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">add_root</property>
+                    <property name="use_underline">True</property>
+                    <property name="stock_id">gtk-add</property>
+                    <signal name="clicked" handler="on_tb_add_root_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="tb_add_child">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">add_child</property>
+                    <property name="use_underline">True</property>
+                    <property name="stock_id">gtk-new</property>
+                    <signal name="clicked" handler="on_tb_add_child_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="tb_remove">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">remove</property>
+                    <property name="use_underline">True</property>
+                    <property name="stock_id">gtk-remove</property>
+                    <signal name="clicked" handler="on_tb_remove_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">True</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="scr_data">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="shadow_type">in</property>
+            <child>
+              <object class="GtkTreeView" id="tv_data">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="expander_column">tvc_data_data</property>
+                <property name="reorderable">True</property>
+                <property name="enable_tree_lines">True</property>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection" id="tvs_selection_data">
+                    <signal name="changed" handler="on_tvs_selection_data_changed" swapped="no"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="tvc_data_offset">
+                    <property name="title" translatable="yes">Offset</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="tvcr_data_offset">
+                        <property name="width_chars">10</property>
+                      </object>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="tvc_data_data">
+                    <property name="resizable">True</property>
+                    <property name="title" translatable="yes">Data</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="tvcr_data_data"/>
+                      <attributes>
+                        <attribute name="text">1</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="tvc_data_comment">
+                    <property name="title" translatable="yes">Comment</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="tvcr_data_comment">
+                        <property name="editable">True</property>
+                        <signal name="edited" handler="on_tvcr_data_comment_edited" swapped="no"/>
+                      </object>
+                      <attributes>
+                        <attribute name="text">2</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+  </object>
+</interface>
