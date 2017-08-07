@@ -104,17 +104,12 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
         super().__init__()
         self.tree = TreexNode()
         self.node_refs = weakref.WeakValueDictionary()
-        for i in range(4):
-            obj = TreexNode(self.tree, 0, 4, 2)
-            self.tree.append(obj)
-            self.register_node(obj)
     
     def do_get_flags(self):
         return Gtk.TreeModelFlags.ITERS_PERSIST
     
     def do_get_iter(self, path):
         indices = path.get_indices()
-        print("get iter:", indices)
         it = iter(indices)
         node = self.tree.get_nth_child(next(it))
         if not node:
@@ -123,35 +118,31 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
             node = node.get_nth_child(indice)
             if not node:
                 return (False, None)
-        print("get iter ->", node)
         return (True, self.get_node_iter(node))
     
     def do_iter_next(self, iter_):
         node = self.get_node(iter_)
-        print("next from:", node)
         if not node:
             return (False, None)
         sibling = node.parent.get_next_child(node)
-        print("next from ->", sibling)
         if not sibling:
             return (False, None)
-        return (True, self.get_node_iter(sibling))
+        iter_.user_data = id(sibling)
+        return (True, iter_)
     
     def do_iter_previous(self, iter_):
         node = self.get_node(iter_)
-        print("previous from:", node)
         if not node:
             return (False, None)
         sibling = node.parent.get_previous_child(node)
-        print("previous from ->", sibling)
         if not sibling:
             return (False, None)
-        return (True, self.get_node_iter(sibling))
+        iter_.user_data = id(sibling)
+        return (True, iter_)
     
     def do_iter_has_child(self, iter_):
         assert iter_ is not None
         node = self.get_node(iter_)
-        print("has child:", node)
         if not node:
             return False
         else:
@@ -162,7 +153,6 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
             node = self.tree
         else:
             node = self.get_node(iter_)
-        print("n children:", node)
         return node.get_n_children()
     
     def do_iter_nth_child(self, iter_, n):
@@ -172,19 +162,20 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
         node = parent.get_nth_child(n)
         if not node:
             return (False, None)
-        citer_ = Gtk.TreeIter()
-        citer_.user_data = id(node)
-        return (True, citer_)
+        if iter_ is None:
+            iter_ = Gtk.TreeIter()
+        iter_.user_data = id(node)
+        return (True, iter_)
     
     def do_iter_parent(self, iter_):
         node = self.get_node(iter_)
-        print("parent of", node)
         if not node:
             return (False, None)
         parent = node.parent
         if parent is self.tree:
             return (False, None) # top level
-        return (True, self.get_node_iter(parent))
+        iter_.user_data = id(parent)
+        return (True, iter_)
     
     def do_iter_children(self, iter_):
         if iter_ is None:
@@ -194,11 +185,11 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
         child = parent.get_nth_child(0)
         if child is None:
             return (False, None)
-        return (True, self.get_node_iter(child))
+        iter_.user_data = id(child)
+        return (True, iter_)
     
     def do_get_path(self, iter_):
         node = self.get_node(iter_)
-        print("path of:", node)
         if not node:
             raise RuntimeError("cannot get path of invalid iter")
         parent = node.parent
@@ -207,7 +198,6 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
             indices.insert(0, parent.get_child_pos(node))
             node = parent
             parent = node.parent
-        print("path of ->", indices)
         return Gtk.TreePath(tuple(indices))
     
     def do_get_n_columns(self):
@@ -218,7 +208,6 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
     
     def do_get_value(self, iter_, column):
         node = self.get_node(iter_)
-        print("value of", column, node)
         if not node:
             return None
         return (
@@ -240,7 +229,6 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
         if iter_ is None:
             return None
         node = self.node_refs.get(iter_.user_data, None)
-        print("Node of", iter_.user_data, node)
         return node
     
     def register_node(self, node):
@@ -262,8 +250,7 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
         node.set_notify(self._node_changed_cb)
         iter_ = self.get_node_iter(node)
         path = self.get_path(iter_)
-        print("==== Appended", node, path.get_indices())
-        if was_alone:
+        if was_alone and parent is not self.tree:
             piter = self.get_node_iter(parent)
             ppath = self.get_path(piter)
             self.row_has_child_toggled(ppath, piter)
@@ -281,8 +268,7 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
         node.set_notify(self._node_changed_cb)
         iter_ = self.get_node_iter(node)
         path = self.get_path(iter_)
-        print("==== Inserted", node, path.get_indices())
-        if was_alone:
+        if was_alone and parent is not self.tree:
             piter = self.get_node_iter(parent)
             ppath = self.get_path(piter)
             self.row_has_child_toggled(ppath, piter)
@@ -294,7 +280,6 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
         path = self.get_path(iter_)
         parent = node.parent
         was_alone = parent.get_n_children() == 0
-        parent.remove(node)
         is_alone = parent.get_n_children() == 0
         node.set_notify(None)
         if (not was_alone) and is_alone:
@@ -302,6 +287,7 @@ class TreexTreeModel(GObject.GObject, Gtk.TreeModel):
             ppath = self.get_path(piter)
             self.row_has_child_toggled(ppath, piter)
         self.row_deleted(path)
+        parent.remove(node)
     
     def _node_changed_cb(self, node):
         iter_ = self.get_node_iter(node)
@@ -355,7 +341,8 @@ class AppWindowWrapper:
                 previous = node.parent
             else:
                 previous = node.parent.get_nth_child(index-1)
-            if previous:
+            if previous and previous is not self.model.tree: # TODO: Remove workaround
+                
                 piter = self.model.get_node_iter(previous)
                 self.selection.select_iter(piter)
             else:
